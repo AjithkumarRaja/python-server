@@ -2,23 +2,25 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
+current_command = None
+
 @app.route("/")
 def home():
-    return "Hello from Render!"
+    return "TV Remote Server Running"
 
-@app.route("/hello")
-def hello():
-    return jsonify({
-        "message": "Hello World!",
-        "status": "success"
-    })
-
-@app.route("/echo", methods=["POST"])
-def echo():
+@app.route("/send", methods=["POST"])
+def send():
+    global current_command
     data = request.json
-    return jsonify({
-        "received": data
-    })
+    current_command = data["command"]
+    return jsonify({"status": "ok"})
+
+@app.route("/get")
+def get():
+    global current_command
+    cmd = current_command
+    current_command = None
+    return jsonify({"command": cmd})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run()
